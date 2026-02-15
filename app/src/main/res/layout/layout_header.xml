@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/headerLayout"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- BACK BUTTON -->
+    <TextView
+        android:id="@+id/btnBack"
+        android:text="⬅️"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:layout_marginEnd="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- USER NAME -->
+    <TextView
+        android:id="@+id/txtUserName"
+        android:text="Hello, Yash"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="0dp"/>
+
+    <!-- CART -->
+    <TextView
+        android:id="@+id/btnCart"
+        android:text="🛒"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:background="@drawable/cart_background"
+        android:padding="10dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
+</LinearLayout>

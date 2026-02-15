@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <ImageView
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:src="@drawable/landing_image"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:text="@string/app_name"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/red"
+        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- USER LOGIN -->
+    <Button
+        android:id="@+id/btnLogin"
+        android:text="User Login"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/orange"
+        android:layout_marginTop="24dp"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"/>
+
+    <!-- USER SIGNUP -->
+    <Button
+        android:id="@+id/btnSignup"
+        android:text="User Sign Up"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/red"
+        android:layout_marginTop="12dp"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"/>
+
+    <!-- ADMIN LOGIN -->
+    <Button
+        android:id="@+id/btnAdminLogin"
+        android:text="Admin Login"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:layout_marginTop="12dp"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
