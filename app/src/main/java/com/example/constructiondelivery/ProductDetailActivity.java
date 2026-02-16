@@ -51,7 +51,7 @@ public class ProductDetailActivity extends BaseActivity {
         });
 
         findViewById(R.id.btnBuyNow).setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddressActivity.class);
+            Intent intent = new Intent(this, OrderSummaryActivity.class);
             intent.putExtra("material", material);
             intent.putExtra("quantity", count);
             startActivity(intent);

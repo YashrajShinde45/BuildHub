@@ -72,14 +72,16 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
+                        // Load the user's cart from Firestore
+                        CartManager.loadCartFromFirestore(() -> {
+                            Toast.makeText(LoginActivity.this,
+                                    "Login Successful",
+                                    Toast.LENGTH_SHORT).show();
 
-                        Toast.makeText(LoginActivity.this,
-                                "Login Successful",
-                                Toast.LENGTH_SHORT).show();
-
-                        Intent intent = new Intent(LoginActivity.this, UserDashboardActivity.class);
-                        startActivity(intent);
-                        finish();
+                            Intent intent = new Intent(LoginActivity.this, UserDashboardActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
 
                     } else {
 
@@ -108,9 +110,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
         if (mAuth.getCurrentUser() != null) {
-            Intent intent = new Intent(this, UserDashboardActivity.class);
-            startActivity(intent);
-            finish();
+            // Load the user's cart from Firestore
+            CartManager.loadCartFromFirestore(() -> {
+                Intent intent = new Intent(this, UserDashboardActivity.class);
+                startActivity(intent);
+                finish();
+            });
         }
     }
 }

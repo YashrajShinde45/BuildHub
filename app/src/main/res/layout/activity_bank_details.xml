@@ -27,28 +27,34 @@
                 android:textStyle="bold" />
 
             <EditText
+                android:id="@+id/etAccountHolderName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:hint="Account Holder Name" />
 
             <EditText
+                android:id="@+id/etAccountNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Account Number" />
+                android:hint="Account Number"
+                android:inputType="number" />
 
             <EditText
+                android:id="@+id/etIfscCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:hint="IFSC Code" />
 
             <EditText
+                android:id="@+id/etBankName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:hint="Bank Name" />
+
 
             <Button
                 android:id="@+id/btnSaveBankDetails"

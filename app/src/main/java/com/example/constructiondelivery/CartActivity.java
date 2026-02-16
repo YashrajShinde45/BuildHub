@@ -47,7 +47,7 @@ public class CartActivity extends BaseActivity implements CartAdapter.OnCartItem
         });
 
         btnContinue.setOnClickListener(v -> {
-            Intent intent = new Intent(CartActivity.this, AddressActivity.class);
+            Intent intent = new Intent(CartActivity.this, OrderSummaryActivity.class);
             intent.putExtra("cartItems", (Serializable) cartItems);
             startActivity(intent);
         });

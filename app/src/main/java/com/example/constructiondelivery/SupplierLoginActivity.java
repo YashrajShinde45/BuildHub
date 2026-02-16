@@ -72,14 +72,17 @@ public class SupplierLoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(SupplierLoginActivity.this,
-                                "Login Successful",
-                                Toast.LENGTH_SHORT).show();
+                        // Load the user's cart from Firestore
+                        CartManager.loadCartFromFirestore(() -> {
+                            Toast.makeText(SupplierLoginActivity.this,
+                                    "Login Successful",
+                                    Toast.LENGTH_SHORT).show();
 
-                        // Go to Supplier Dashboard
-                        Intent intent = new Intent(SupplierLoginActivity.this, SupplierDashboardActivity.class);
-                        startActivity(intent);
-                        finish();
+                            // Go to Supplier Dashboard
+                            Intent intent = new Intent(SupplierLoginActivity.this, SupplierDashboardActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
                     } else {
                         String errorMessage = task.getException() != null ?
                                 task.getException().getMessage() : "Authentication failed.";

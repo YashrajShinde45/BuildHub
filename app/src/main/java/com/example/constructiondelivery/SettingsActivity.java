@@ -38,6 +38,9 @@ public class SettingsActivity extends BaseActivity {
             Toast.makeText(this, "Displaying Terms and Conditions...", Toast.LENGTH_SHORT).show());
 
         findViewById(R.id.tvLogout).setOnClickListener(v -> {
+            // Clear the cart before signing out
+            CartManager.clearLocalCart();
+            
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

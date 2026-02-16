@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class SupplierSignupActivity extends AppCompatActivity {
 
-    private EditText etName, etEmail, etPassword;
+    private EditText etName, etEmail, etPassword, etPhone;
     private Button btnSignup;
     private TextView tvGoToLogin;
 
@@ -34,6 +34,7 @@ public class SupplierSignupActivity extends AppCompatActivity {
         etName = findViewById(R.id.etSupplierName);
         etEmail = findViewById(R.id.etSupplierEmailSignup);
         etPassword = findViewById(R.id.etSupplierPasswordSignup);
+        etPhone = findViewById(R.id.etSupplierPhone);
         btnSignup = findViewById(R.id.btnSignupSupplier);
         tvGoToLogin = findViewById(R.id.tvGoToSupplierLogin);
 
@@ -57,6 +58,7 @@ public class SupplierSignupActivity extends AppCompatActivity {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             etName.setError("Enter Name");
@@ -70,6 +72,11 @@ public class SupplierSignupActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(password)) {
             etPassword.setError("Enter Password");
+            return;
+        }
+
+        if (TextUtils.isEmpty(phone)) {
+            etPhone.setError("Enter Phone Number");
             return;
         }
 
@@ -92,6 +99,7 @@ public class SupplierSignupActivity extends AppCompatActivity {
                             supplier.put("supplierId", supplierId);
                             supplier.put("name", name);
                             supplier.put("email", email);
+                            supplier.put("phone", phone);
                             // Removed password storage for security
 
                             // Save to Firestore
