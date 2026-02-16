@@ -2,85 +2,115 @@ package com.example.constructiondelivery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
 public class LoginActivity extends AppCompatActivity {
 
-    EditText etEmail, etPassword;
-    Button btnLogin;
-    TextView txtLoginTitle;
+    private EditText etEmail, etPassword;
+    private Button btnLogin;
 
-    private static final String USER_EMAIL = "user@gmail.com";
-    private static final String USER_PASSWORD = "user123";
-
-    private static final String ADMIN_EMAIL = "admin@gmail.com";
-    private static final String ADMIN_PASSWORD = "admin123";
-
-    boolean isAdmin = false;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // Connect XML views
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        txtLoginTitle = findViewById(R.id.txtLoginTitle);
 
-        String role = getIntent().getStringExtra("ROLE");
-        if ("ADMIN".equals(role)) {
-            isAdmin = true;
-            txtLoginTitle.setText("Admin Login");
-        } else {
-            txtLoginTitle.setText("User Login");
-        }
-
-        btnLogin.setOnClickListener(v -> validateLogin());
+        btnLogin.setOnClickListener(v -> loginUser());
     }
 
-    private void validateLogin() {
+    private void loginUser() {
+
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        // ✅ EMPTY CHECK
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+        // Validation
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("Email is required");
+            etEmail.requestFocus();
             return;
         }
 
-        if (isAdmin) {
-            // ADMIN LOGIN
-            if (email.equals(ADMIN_EMAIL) && password.equals(ADMIN_PASSWORD)) {
+        if (TextUtils.isEmpty(password)) {
+            etPassword.setError("Password is required");
+            etPassword.requestFocus();
+            return;
+        }
 
-                Toast.makeText(this, "Admin Login Success", Toast.LENGTH_SHORT).show();
+        // 🔹 ADMIN LOGIN (Hardcoded)
+        if (email.equals("admin@gmail.com") && password.equals("admin123")) {
 
-                Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+            Toast.makeText(LoginActivity.this,
+                    "Admin Login Successful",
+                    Toast.LENGTH_SHORT).show();
 
-            } else {
-                Toast.makeText(this, "Invalid Admin Credentials", Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
-        } else {
-            // USER LOGIN
-            if (email.equals(USER_EMAIL) && password.equals(USER_PASSWORD)) {
+        // 🔹 NORMAL USER LOGIN (Firebase Authentication)
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
 
-                Toast.makeText(this, "User Login Success", Toast.LENGTH_SHORT).show();
+                    if (task.isSuccessful()) {
 
-                Intent intent = new Intent(LoginActivity.this, UserDashboardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                        Toast.makeText(LoginActivity.this,
+                                "Login Successful",
+                                Toast.LENGTH_SHORT).show();
 
-            } else {
-                Toast.makeText(this, "Invalid User Credentials", Toast.LENGTH_SHORT).show();
-            }
+                        Intent intent = new Intent(LoginActivity.this, UserDashboardActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                    } else {
+
+                        String errorMessage;
+
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthInvalidUserException e) {
+                            errorMessage = "No account found with this email.";
+                        } catch (FirebaseAuthInvalidCredentialsException e) {
+                            errorMessage = "Invalid password.";
+                        } catch (Exception e) {
+                            errorMessage = e.getMessage();
+                        }
+
+                        Toast.makeText(LoginActivity.this,
+                                "Login Failed: " + errorMessage,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    // 🔹 Auto Login (Only for Firebase Users)
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mAuth.getCurrentUser() != null) {
+            Intent intent = new Intent(this, UserDashboardActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 }

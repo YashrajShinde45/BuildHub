@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "923394285752",
-    "project_id": "constructionmaterialdeli-f7c8c",
-    "storage_bucket": "constructionmaterialdeli-f7c8c.firebasestorage.app"
+    "project_number": "134830196871",
+    "project_id": "constructionmaterialdeli-b86f1",
+    "storage_bucket": "constructionmaterialdeli-b86f1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:923394285752:android:937c42cc54b65cd2fe544d",
+        "mobilesdk_app_id": "1:134830196871:android:90986e01da4674d560d022",
         "android_client_info": {
           "package_name": "com.example.constructiondelivery"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDMPIe4eBXpk2eJRHvyypg3bHBAoofq1O4"
+          "current_key": "AIzaSyBIrPpH2CvTc-qFRH9GgpvINtK-S87NqdY"
         }
       ],
       "services": {

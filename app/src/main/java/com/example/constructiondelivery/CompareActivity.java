@@ -16,6 +16,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import com.google.android.material.card.MaterialCardView;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class CompareActivity extends BaseActivity {
 
@@ -23,6 +29,7 @@ public class CompareActivity extends BaseActivity {
     private static final int SELECT_PRODUCT_2_REQUEST = 2;
 
     private Material product1, product2;
+    private long expiry1, expiry2;
 
     private MaterialCardView card1, card2;
     private LinearLayout selectionContainer;
@@ -73,6 +80,10 @@ public class CompareActivity extends BaseActivity {
             selectionContainer.setVisibility(View.GONE);
             loadingIndicator.setVisibility(View.VISIBLE);
 
+            // Generate random timers for both products
+            expiry1 = createRandomTimer(product1.name);
+            expiry2 = createRandomTimer(product2.name);
+
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 // After 2.5 seconds, show results
                 loadingIndicator.setVisibility(View.GONE);
@@ -80,6 +91,43 @@ public class CompareActivity extends BaseActivity {
                 resultsContainer.setVisibility(View.VISIBLE);
             }, 2500);
         });
+
+        findViewById(R.id.btnBuy1).setOnClickListener(v -> {
+            if (product1 != null) {
+                Intent intent = new Intent(this, ProductDetailActivity.class);
+                intent.putExtra("material", product1);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.btnBuy2).setOnClickListener(v -> {
+            if (product2 != null) {
+                Intent intent = new Intent(this, ProductDetailActivity.class);
+                intent.putExtra("material", product2);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public long createRandomTimer(String productName) {
+        long currentTime = System.currentTimeMillis();
+        Random random = new Random();
+        int randomDays = random.nextInt(5) + 1;  // 1 to 5 days
+        long randomDaysInMillis = randomDays * 24L * 60 * 60 * 1000;
+        long expiryTime = currentTime + randomDaysInMillis;
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("productName", productName);
+        data.put("createdAt", currentTime);
+        data.put("expiryTime", expiryTime);
+        data.put("randomDays", randomDays);
+
+        FirebaseFirestore.getInstance()
+                .collection("ProductTimers")
+                .document()
+                .set(data);
+
+        return expiryTime;
     }
 
     @Override
@@ -124,6 +172,9 @@ public class CompareActivity extends BaseActivity {
         ((TextView) findViewById(R.id.txtDescription1)).setText(product1.shortDesc);
         ((TextView) findViewById(R.id.txtDetails1)).setText(product1.details);
 
+        String timeStr1 = getRemainingTimeStr(expiry1);
+        ((TextView) findViewById(R.id.tvExpiry1)).setText("Expires in: " + timeStr1);
+
         // Product 2 Details
         ((ImageView) findViewById(R.id.imgProduct2)).setImageResource(product2.image);
         ((TextView) findViewById(R.id.txtName2)).setText(product2.name);
@@ -131,5 +182,24 @@ public class CompareActivity extends BaseActivity {
         ((TextView) findViewById(R.id.txtSupplier2)).setText("Supplier: " + product2.supplier);
         ((TextView) findViewById(R.id.txtDescription2)).setText(product2.shortDesc);
         ((TextView) findViewById(R.id.txtDetails2)).setText(product2.details);
+
+        String timeStr2 = getRemainingTimeStr(expiry2);
+        ((TextView) findViewById(R.id.tvExpiry2)).setText("Expires in: " + timeStr2);
+
+        // Display closest one
+        TextView tvClosest = findViewById(R.id.tvClosestExpiry);
+        tvClosest.setVisibility(View.VISIBLE);
+        if (expiry1 < expiry2) {
+            tvClosest.setText("Closest Expiry: " + product1.name + " (" + timeStr1 + ")");
+        } else {
+            tvClosest.setText("Closest Expiry: " + product2.name + " (" + timeStr2 + ")");
+        }
+    }
+
+    private String getRemainingTimeStr(long expiryTime) {
+        long diff = expiryTime - System.currentTimeMillis();
+        long days = TimeUnit.MILLISECONDS.toDays(diff);
+        long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+        return days + "d " + hours + "h";
     }
 }

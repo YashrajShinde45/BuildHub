@@ -2,38 +2,91 @@ package com.example.constructiondelivery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class SupplierLoginActivity extends AppCompatActivity {
+
+    private EditText etEmail, etPassword;
+    private Button btnLogin;
+    private TextView tvGoToSignup;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_supplier_login);
 
-        EditText etEmail = findViewById(R.id.etSupplierEmail);
-        EditText etPassword = findViewById(R.id.etSupplierPassword);
-        Button btnLogin = findViewById(R.id.btnLoginSupplier);
+        // Initialize Views
+        etEmail = findViewById(R.id.etSupplierEmail);
+        etPassword = findViewById(R.id.etSupplierPassword);
+        btnLogin = findViewById(R.id.btnLoginSupplier);
+        tvGoToSignup = findViewById(R.id.tvGoToSupplierSignup);
 
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
-            if (email.equals("sup@gmail.com") && password.equals("sup123")) {
-                Toast.makeText(this, "Supplier Login Successful!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, SupplierDashboardActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show();
-            }
+        // Login Button Click
+        btnLogin.setOnClickListener(v -> loginSupplier());
+
+        // Go To Signup Click
+        tvGoToSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(SupplierLoginActivity.this, SupplierSignupActivity.class);
+            startActivity(intent);
+            finish();
         });
+    }
 
-        findViewById(R.id.tvGoToSupplierSignup).setOnClickListener(v -> {
-            startActivity(new Intent(this, SupplierSignupActivity.class));
-        });
+    private void loginSupplier() {
+
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("Enter Email");
+            etEmail.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            etPassword.setError("Enter Password");
+            etPassword.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            etPassword.setError("Password must be at least 6 characters");
+            etPassword.requestFocus();
+            return;
+        }
+
+        // Firebase Authentication Login
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(SupplierLoginActivity.this,
+                                "Login Successful",
+                                Toast.LENGTH_SHORT).show();
+
+                        // Go to Supplier Dashboard
+                        Intent intent = new Intent(SupplierLoginActivity.this, SupplierDashboardActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        String errorMessage = task.getException() != null ?
+                                task.getException().getMessage() : "Authentication failed.";
+                        Toast.makeText(SupplierLoginActivity.this,
+                                "Login Failed: " + errorMessage,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }
