@@ -15,13 +15,11 @@
         app:tabTextColor="@color/black">
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabAddProduct"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add New Product" />
 
         <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabHistory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="History" />
@@ -47,19 +45,39 @@
                 android:hint="Product Name" />
 
             <EditText
+                android:id="@+id/etCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Category" />
+
+            <EditText
                 android:id="@+id/etProductPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Price (e.g., ₹450/bag)" />
+                android:hint="Price (e.g., 2000)" />
+
+            <EditText
+                android:id="@+id/etDiscount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Discount (%)"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/etQuantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Quantity"
+                android:inputType="number" />
 
             <EditText
                 android:id="@+id/etProductQuantityUnit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Quantity Unit (e.g., bag, ton)" />
+                android:hint="Quantity Unit (bag, ton)" />
 
             <EditText
-                android:id="@+id/etProductSupplier"
+                android:id="@+id/etSupplier"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Supplier Name" />
@@ -74,7 +92,7 @@
                 android:id="@+id/etProductQuality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Quality (e.g., Grade A)" />
+                android:hint="Quality (Grade A)" />
 
             <EditText
                 android:id="@+id/etProductDetails"

@@ -6,18 +6,14 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +31,8 @@ public class AddProductActivity extends BaseActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
-    private EditText etName, etPrice, etQuantityUnit,
+    private EditText etName, etCategory, etPrice,
+            etDiscount, etQuantity, etQuantityUnit,
             etSupplier, etShortDesc, etQuality, etDetails;
 
     private String supplierId;
@@ -59,9 +56,12 @@ public class AddProductActivity extends BaseActivity {
         tabLayout = findViewById(R.id.tabLayout);
 
         etName = findViewById(R.id.etProductName);
+        etCategory = findViewById(R.id.etCategory);
         etPrice = findViewById(R.id.etProductPrice);
+        etDiscount = findViewById(R.id.etDiscount);
+        etQuantity = findViewById(R.id.etQuantity);
         etQuantityUnit = findViewById(R.id.etProductQuantityUnit);
-        etSupplier = findViewById(R.id.etProductSupplier);
+        etSupplier = findViewById(R.id.etSupplier);
         etShortDesc = findViewById(R.id.etProductShortDesc);
         etQuality = findViewById(R.id.etProductQuality);
         etDetails = findViewById(R.id.etProductDetails);
@@ -73,9 +73,6 @@ public class AddProductActivity extends BaseActivity {
                 .setOnClickListener(v -> saveProduct());
     }
 
-    // =========================
-    // SAVE PRODUCT
-    // =========================
     private void saveProduct() {
 
         if (supplierId == null) {
@@ -84,50 +81,74 @@ public class AddProductActivity extends BaseActivity {
         }
 
         String name = etName.getText().toString().trim();
+        String category = etCategory.getText().toString().trim();
         String priceStr = etPrice.getText().toString().trim();
+        String discountStr = etDiscount.getText().toString().trim();
+        String quantityStr = etQuantity.getText().toString().trim();
         String quantityUnit = etQuantityUnit.getText().toString().trim();
         String supplierName = etSupplier.getText().toString().trim();
         String shortDesc = etShortDesc.getText().toString().trim();
         String quality = etQuality.getText().toString().trim();
         String fullDetails = etDetails.getText().toString().trim();
 
-        if (name.isEmpty() || priceStr.isEmpty() ||
-                quantityUnit.isEmpty() || supplierName.isEmpty()) {
+        if (name.isEmpty() || priceStr.isEmpty() || quantityUnit.isEmpty()) {
             Toast.makeText(this, "Fill required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double price;
-        try {
-            price = Double.parseDouble(priceStr.replaceAll("[^\\d.]", ""));
-        } catch (Exception e) {
-            Toast.makeText(this, "Invalid price", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        double price = Double.parseDouble(priceStr.replaceAll("[^\\d.]", ""));
+        int discount = discountStr.isEmpty() ? 0 : Integer.parseInt(discountStr);
+        int quantity = quantityStr.isEmpty() ? 0 : Integer.parseInt(quantityStr);
 
-        Map<String, Object> productMap = new HashMap<>();
-        productMap.put("productName", name);
-        productMap.put("price", price);
-        productMap.put("quantityUnit", quantityUnit);
-        productMap.put("supplierName", supplierName);
-        productMap.put("shortDesc", shortDesc);
-        productMap.put("quality", quality);
-        productMap.put("fullDetails", fullDetails);
-        productMap.put("status", "Pending");
-        productMap.put("productImage", "");
-        productMap.put("createdAt", Timestamp.now());
-        productMap.put("updatedAt", Timestamp.now());
+        Timestamp now = Timestamp.now();
+
+        /* ===============================
+           🔥 SAVE TO SUPPLIER PRODUCTS
+        =============================== */
+
+        Map<String, Object> supplierMap = new HashMap<>();
+        supplierMap.put("productName", name);
+        supplierMap.put("price", price);
+        supplierMap.put("quantityUnit", quantityUnit);
+        supplierMap.put("supplierName", supplierName);
+        supplierMap.put("shortDesc", shortDesc);
+        supplierMap.put("quality", quality);
+        supplierMap.put("fullDetails", fullDetails);
+        supplierMap.put("status", "Pending");
+        supplierMap.put("productImage", "");
+        supplierMap.put("createdAt", now);
+        supplierMap.put("updatedAt", now);
 
         db.collection("suppliers")
                 .document(supplierId)
                 .collection("products")
-                .add(productMap)
+                .add(supplierMap)
                 .addOnSuccessListener(documentReference -> {
 
                     String productId = documentReference.getId();
-
-                    // 🔥 ALSO ADD TO PRODUCT HISTORY
                     addToHistory(name, "Pending", productId);
+
+                    /* ===============================
+                       🔥 ALSO SAVE TO MATERIALS
+                    =============================== */
+
+                    Map<String, Object> materialMap = new HashMap<>();
+                    materialMap.put("name", name);
+                    materialMap.put("category", category);
+                    materialMap.put("price", price);
+                    materialMap.put("discount", discount);
+                    materialMap.put("quantity", quantity);
+                    materialMap.put("quantityUnit", quantityUnit);
+                    materialMap.put("supplier", supplierName);
+                    materialMap.put("shortDesc", shortDesc);
+                    materialMap.put("quality", quality);
+                    materialMap.put("details", fullDetails);
+                    materialMap.put("image", "");
+                    materialMap.put("status", "Pending");
+                    materialMap.put("createdAt", now);
+                    materialMap.put("updatedAt", now);
+
+                    db.collection("materials").add(materialMap);
 
                     Toast.makeText(this, "Product Added", Toast.LENGTH_SHORT).show();
                     clearFields();
@@ -135,9 +156,6 @@ public class AddProductActivity extends BaseActivity {
                 });
     }
 
-    // =========================
-    // ADD TO HISTORY COLLECTION
-    // =========================
     private void addToHistory(String name, String status, String productId) {
 
         Map<String, Object> historyMap = new HashMap<>();
@@ -153,19 +171,10 @@ public class AddProductActivity extends BaseActivity {
                 .addOnSuccessListener(doc -> loadProductHistory());
     }
 
-    // =========================
-    // LOAD HISTORY FROM FIRESTORE
-    // =========================
     private void loadProductHistory() {
 
         productList.clear();
         adapter.notifyDataSetChanged();
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            return;
-        }
-        supplierId = currentUser.getUid();
 
         db.collection("suppliers")
                 .document(supplierId)
@@ -173,15 +182,12 @@ public class AddProductActivity extends BaseActivity {
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getString("productName");
-                        String status = doc.getString("status");
-                        productList.add(new Product(name, status));
+                    for (var doc : queryDocumentSnapshots) {
+                        productList.add(new Product(
+                                doc.getString("productName"),
+                                doc.getString("status")));
                     }
                     adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(AddProductActivity.this, "Failed to load history", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -194,7 +200,10 @@ public class AddProductActivity extends BaseActivity {
 
     private void clearFields() {
         etName.setText("");
+        etCategory.setText("");
         etPrice.setText("");
+        etDiscount.setText("");
+        etQuantity.setText("");
         etQuantityUnit.setText("");
         etSupplier.setText("");
         etShortDesc.setText("");
@@ -215,16 +224,8 @@ public class AddProductActivity extends BaseActivity {
                     loadProductHistory();
                 }
             }
-
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
-    }
-
-    @Override
-    protected void setupUniversalNavigation() {
-        super.setupUniversalNavigation();
-        View backButton = findViewById(R.id.btnBack);
-        if (backButton != null) backButton.setVisibility(View.VISIBLE);
     }
 }
