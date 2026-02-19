@@ -19,7 +19,7 @@ public class AccountActivity extends BaseActivity {
         // --- Link to all new and existing pages ---
         findViewById(R.id.profileSection).setOnClickListener(v -> startActivity(new Intent(this, EditProfileActivity.class)));
         findViewById(R.id.card_my_orders).setOnClickListener(v -> startActivity(new Intent(this, OrdersActivity.class)));
-        findViewById(R.id.card_help_center).setOnClickListener(v -> showToast("Help Center coming soon!"));
+        findViewById(R.id.card_help_center).setOnClickListener(v -> startActivity(new Intent(this, HelpCenterActivity.class)));
         findViewById(R.id.btn_settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         findViewById(R.id.btn_become_supplier).setOnClickListener(v -> startActivity(new Intent(this, SupplierLoginActivity.class)));
         findViewById(R.id.btn_rate_app).setOnClickListener(v -> startActivity(new Intent(this, RateAppActivity.class)));

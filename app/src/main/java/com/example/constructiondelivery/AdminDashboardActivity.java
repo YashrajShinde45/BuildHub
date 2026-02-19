@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    Button btnMaterials, btnOrders, btnUsers, btnLogout;
+    Button btnMaterials, btnOrders, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +18,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnMaterials = findViewById(R.id.btnMaterials);
         btnOrders = findViewById(R.id.btnOrders);
-        btnUsers = findViewById(R.id.btnUsers);
         btnLogout = findViewById(R.id.btnLogout);
 
         btnMaterials.setOnClickListener(v -> {
@@ -28,11 +27,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnOrders.setOnClickListener(v -> {
             Intent intent = new Intent(this, ViewOrderActivity.class);
-            startActivity(intent);
-        });
-
-        btnUsers.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ManageUsersActivity.class);
             startActivity(intent);
         });
 

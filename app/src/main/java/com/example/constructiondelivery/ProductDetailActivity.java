@@ -9,11 +9,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 public class ProductDetailActivity extends BaseActivity {
 
     private int count = 1;
     private TextView txtCount;
     private Material material;
+    private long possibleDeliveryTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,12 @@ public class ProductDetailActivity extends BaseActivity {
             finish();
             return;
         }
+
+        // --- TIMER LOGIC ---
+        TextView tvPossibleDelivery = findViewById(R.id.tvPossibleDelivery);
+        possibleDeliveryTime = createRandomTimer();
+        String timeStr = getRemainingTimeStr(possibleDeliveryTime);
+        tvPossibleDelivery.setText("Possible delivery in: " + timeStr);
 
         // --- BUTTON LOGIC ---
         findViewById(R.id.btnAddToCart).setOnClickListener(v -> {
@@ -98,5 +108,22 @@ public class ProductDetailActivity extends BaseActivity {
         desc.setText(material.shortDesc);
         quality.setText(material.quality);
         details.setText(material.details);
+    }
+
+    private long createRandomTimer() {
+        long currentTime = System.currentTimeMillis();
+        Random random = new Random();
+        int randomDays = random.nextInt(4) + 4;  // 4 to 7 days
+        int randomHours = random.nextInt(24);
+        long randomDaysInMillis = randomDays * 24L * 60 * 60 * 1000;
+        long randomHoursInMillis = randomHours * 60L * 60 * 1000;
+        return currentTime + randomDaysInMillis + randomHoursInMillis;
+    }
+
+    private String getRemainingTimeStr(long possibleDeliveryTime) {
+        long diff = possibleDeliveryTime - System.currentTimeMillis();
+        long days = TimeUnit.MILLISECONDS.toDays(diff);
+        long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+        return days + "d " + hours + "h";
     }
 }

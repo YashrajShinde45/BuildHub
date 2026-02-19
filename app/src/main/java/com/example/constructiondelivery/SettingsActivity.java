@@ -35,7 +35,7 @@ public class SettingsActivity extends BaseActivity {
             startActivity(new Intent(this, BankDetailsActivity.class)));
 
         findViewById(R.id.tvTermsAndConditions).setOnClickListener(v -> 
-            Toast.makeText(this, "Displaying Terms and Conditions...", Toast.LENGTH_SHORT).show());
+            startActivity(new Intent(this, TermsActivity.class)));
 
         findViewById(R.id.tvLogout).setOnClickListener(v -> {
             // Clear the cart before signing out

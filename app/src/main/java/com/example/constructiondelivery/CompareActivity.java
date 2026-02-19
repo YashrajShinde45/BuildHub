@@ -29,7 +29,7 @@ public class CompareActivity extends BaseActivity {
     private static final int SELECT_PRODUCT_2_REQUEST = 2;
 
     private Material product1, product2;
-    private long expiry1, expiry2;
+    private long possibleDelivery1, possibleDelivery2;
 
     private MaterialCardView card1, card2;
     private LinearLayout selectionContainer;
@@ -81,8 +81,8 @@ public class CompareActivity extends BaseActivity {
             loadingIndicator.setVisibility(View.VISIBLE);
 
             // Generate random timers for both products
-            expiry1 = createRandomTimer(product1.name);
-            expiry2 = createRandomTimer(product2.name);
+            possibleDelivery1 = createRandomTimer(product1.name);
+            possibleDelivery2 = createRandomTimer(product2.name);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 // After 2.5 seconds, show results
@@ -112,22 +112,25 @@ public class CompareActivity extends BaseActivity {
     public long createRandomTimer(String productName) {
         long currentTime = System.currentTimeMillis();
         Random random = new Random();
-        int randomDays = random.nextInt(5) + 1;  // 1 to 5 days
+        int randomDays = random.nextInt(4) + 4;  // 4 to 7 days
+        int randomHours = random.nextInt(24);
         long randomDaysInMillis = randomDays * 24L * 60 * 60 * 1000;
-        long expiryTime = currentTime + randomDaysInMillis;
+        long randomHoursInMillis = randomHours * 60L * 60 * 1000;
+        long possibleDeliveryTime = currentTime + randomDaysInMillis + randomHoursInMillis;
 
         Map<String, Object> data = new HashMap<>();
         data.put("productName", productName);
         data.put("createdAt", currentTime);
-        data.put("expiryTime", expiryTime);
+        data.put("possibleDeliveryTime", possibleDeliveryTime);
         data.put("randomDays", randomDays);
+        data.put("randomHours", randomHours);
 
         FirebaseFirestore.getInstance()
-                .collection("ProductTimers")
+                .collection("ProductDeliveryTimes")
                 .document()
                 .set(data);
 
-        return expiryTime;
+        return possibleDeliveryTime;
     }
 
     @Override
@@ -172,8 +175,8 @@ public class CompareActivity extends BaseActivity {
         ((TextView) findViewById(R.id.txtDescription1)).setText(product1.shortDesc);
         ((TextView) findViewById(R.id.txtDetails1)).setText(product1.details);
 
-        String timeStr1 = getRemainingTimeStr(expiry1);
-        ((TextView) findViewById(R.id.tvExpiry1)).setText("Expires in: " + timeStr1);
+        String timeStr1 = getRemainingTimeStr(possibleDelivery1);
+        ((TextView) findViewById(R.id.tvPossibleDelivery1)).setText("Possible delivery in: " + timeStr1);
 
         // Product 2 Details
         ((ImageView) findViewById(R.id.imgProduct2)).setImageResource(product2.image);
@@ -183,21 +186,21 @@ public class CompareActivity extends BaseActivity {
         ((TextView) findViewById(R.id.txtDescription2)).setText(product2.shortDesc);
         ((TextView) findViewById(R.id.txtDetails2)).setText(product2.details);
 
-        String timeStr2 = getRemainingTimeStr(expiry2);
-        ((TextView) findViewById(R.id.tvExpiry2)).setText("Expires in: " + timeStr2);
+        String timeStr2 = getRemainingTimeStr(possibleDelivery2);
+        ((TextView) findViewById(R.id.tvPossibleDelivery2)).setText("Possible delivery in: " + timeStr2);
 
         // Display closest one
-        TextView tvClosest = findViewById(R.id.tvClosestExpiry);
+        TextView tvClosest = findViewById(R.id.tvClosestPossibleDelivery);
         tvClosest.setVisibility(View.VISIBLE);
-        if (expiry1 < expiry2) {
-            tvClosest.setText("Closest Expiry: " + product1.name + " (" + timeStr1 + ")");
+        if (possibleDelivery1 < possibleDelivery2) {
+            tvClosest.setText("Closest Possible Delivery: " + product1.name + " (" + timeStr1 + ")");
         } else {
-            tvClosest.setText("Closest Expiry: " + product2.name + " (" + timeStr2 + ")");
+            tvClosest.setText("Closest Possible Delivery: " + product2.name + " (" + timeStr2 + ")");
         }
     }
 
-    private String getRemainingTimeStr(long expiryTime) {
-        long diff = expiryTime - System.currentTimeMillis();
+    private String getRemainingTimeStr(long possibleDeliveryTime) {
+        long diff = possibleDeliveryTime - System.currentTimeMillis();
         long days = TimeUnit.MILLISECONDS.toDays(diff);
         long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
         return days + "d " + hours + "h";

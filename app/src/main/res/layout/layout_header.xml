@@ -17,15 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <!-- USER NAME -->
-    <TextView
-        android:id="@+id/txtUserName"
-        android:text="Hello, Yash"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
     <View
         android:layout_width="0dp"
         android:layout_weight="1"
