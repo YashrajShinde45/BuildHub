@@ -44,54 +44,39 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
         holder.materialCategory.setText("Category: " + material.category);
         holder.materialPrice.setText("Price: " + material.price);
 
-        /* =========================
-           ✅ ACCEPT
-        ========================= */
+        holder.acceptButton.setOnClickListener(v ->
+                updateStatus(material, "Accepted", holder.getAdapterPosition()));
 
-        holder.acceptButton.setOnClickListener(v -> {
-
-            db.collection("materials")
-                    .document(material.id)
-                    .update("status", "Accepted")
-                    .addOnSuccessListener(unused -> {
-
-                        removeFromUI(holder.getAdapterPosition());
-
-                        Toast.makeText(context,
-                                "Accepted: " + material.name,
-                                Toast.LENGTH_SHORT).show();
-                    });
-        });
-
-        /* =========================
-           ❌ REJECT
-        ========================= */
-
-        holder.rejectButton.setOnClickListener(v -> {
-
-            db.collection("materials")
-                    .document(material.id)
-                    .update("status", "Rejected")
-                    .addOnSuccessListener(unused -> {
-
-                        removeFromUI(holder.getAdapterPosition());
-
-                        Toast.makeText(context,
-                                "Rejected: " + material.name,
-                                Toast.LENGTH_SHORT).show();
-                    });
-        });
+        holder.rejectButton.setOnClickListener(v ->
+                updateStatus(material, "Rejected", holder.getAdapterPosition()));
     }
 
-    /* =========================
-       🔥 REMOVE FROM UI ONLY
-    ========================= */
+    // 🔥 FINAL CORRECT UPDATE METHOD
+    private void updateStatus(Material material, String newStatus, int position) {
+
+        db.collection("materials")
+                .document(material.productId)
+                .update("status", newStatus)
+                .addOnSuccessListener(unused -> {
+
+                    db.collection("suppliers")
+                            .document(material.supplierId)
+                            .collection("product_history")
+                            .document(material.productId)
+                            .update("status", newStatus);
+
+                    removeFromUI(position);
+
+                    Toast.makeText(context,
+                            newStatus + " : " + material.name,
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
 
     private void removeFromUI(int position) {
         if (position != RecyclerView.NO_POSITION) {
             materialList.remove(position);
             notifyItemRemoved(position);
-            notifyItemRangeChanged(position, materialList.size());
         }
     }
 
@@ -100,7 +85,7 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
         return materialList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView materialName, materialCategory, materialPrice;
         Button acceptButton, rejectButton;

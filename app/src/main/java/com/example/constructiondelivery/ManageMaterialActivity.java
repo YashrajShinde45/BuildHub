@@ -20,7 +20,6 @@ public class ManageMaterialActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ManageMaterialAdapter adapter;
     private List<Material> materialList;
-
     private FirebaseFirestore db;
 
     @Override
@@ -47,16 +46,20 @@ public class ManageMaterialActivity extends AppCompatActivity {
     private void loadPendingMaterials() {
 
         db.collection("materials")
-                .whereEqualTo("status", "Pending")   // 🔥 VERY IMPORTANT
+                .whereEqualTo("status", "Pending")
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(snapshot -> {
 
                     materialList.clear();
 
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot doc : snapshot) {
 
                         Material material = new Material();
+
                         material.id = doc.getId();
+                        material.productId = doc.getString("productId");
+                        material.supplierId = doc.getString("supplierId");
+
                         material.name = doc.getString("name");
                         material.category = doc.getString("category");
 
