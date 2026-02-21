@@ -65,6 +65,9 @@
         <activity
             android:name=".PaymentMethodActivity"
             android:theme="@style/Theme.BuildHub.NoActionBar" />
+        <activity
+            android:name=".OrderDetailActivity"
+            android:theme="@style/Theme.BuildHub.NoActionBar" />
 
     </application>
 

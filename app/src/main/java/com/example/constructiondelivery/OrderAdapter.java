@@ -1,6 +1,7 @@
 package com.example.constructiondelivery;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     private Context context;
     private List<Order> orderList;
+    private boolean isAdmin; // 🔥 controls click behavior
 
-    public OrderAdapter(Context context, List<Order> orderList) {
+    // 🔥 Updated Constructor
+    public OrderAdapter(Context context, List<Order> orderList, boolean isAdmin) {
         this.context = context;
         this.orderList = orderList;
+        this.isAdmin = isAdmin;
     }
 
     @NonNull
@@ -30,11 +34,25 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         Order order = orderList.get(position);
+
         holder.orderId.setText("Order ID: " + order.orderId);
         holder.userId.setText("User ID: " + order.userId);
         holder.totalPrice.setText("Total Price: " + order.totalPrice);
         holder.orderStatus.setText("Status: " + order.orderStatus);
+
+        // 🔥 Only Admin can click
+        if (isAdmin) {
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, OrderDetailActivity.class);
+                intent.putExtra("order", order);
+                context.startActivity(intent);
+            });
+        } else {
+            // User orders not clickable
+            holder.itemView.setOnClickListener(null);
+        }
     }
 
     @Override

@@ -42,7 +42,7 @@ public class OrdersActivity extends BaseActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         orderList = new ArrayList<>();
-        orderAdapter = new OrderAdapter(this, orderList);
+        orderAdapter = new OrderAdapter(this, orderList, false);
         recyclerView.setAdapter(orderAdapter);
 
         loadOrders();
