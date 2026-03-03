@@ -2,6 +2,7 @@ package com.example.constructiondelivery;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     private Context context;
     private List<Order> orderList;
-    private boolean isAdmin; // 🔥 controls click behavior
+    private boolean isAdmin;
 
-    // 🔥 Updated Constructor
     public OrderAdapter(Context context, List<Order> orderList, boolean isAdmin) {
         this.context = context;
         this.orderList = orderList;
@@ -28,7 +28,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_order, parent, false);
+        View view = LayoutInflater.from(context)
+                .inflate(R.layout.item_order, parent, false);
         return new ViewHolder(view);
     }
 
@@ -40,9 +41,22 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         holder.orderId.setText("Order ID: " + order.orderId);
         holder.userId.setText("User ID: " + order.userId);
         holder.totalPrice.setText("Total Price: " + order.totalPrice);
-        holder.orderStatus.setText("Status: " + order.orderStatus);
+        holder.orderStatus.setText(order.orderStatus);
 
-        // 🔥 Only Admin can click
+        switch (order.orderStatus) {
+            case "Pending":
+                holder.orderStatus.setTextColor(Color.GRAY);
+                break;
+            case "Shipped":
+                holder.orderStatus.setTextColor(Color.BLUE);
+                break;
+            case "Out for Delivery":
+                holder.orderStatus.setTextColor(Color.parseColor("#FFA500"));
+                break;
+            default:
+                holder.orderStatus.setTextColor(Color.BLACK);
+        }
+
         if (isAdmin) {
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, OrderDetailActivity.class);
@@ -50,7 +64,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 context.startActivity(intent);
             });
         } else {
-            // User orders not clickable
             holder.itemView.setOnClickListener(null);
         }
     }

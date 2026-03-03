@@ -2,6 +2,8 @@ package com.example.constructiondelivery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,7 +14,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDashboardActivity extends BaseActivity implements MaterialAdapter.OnMaterialClickListener {
+public class UserDashboardActivity extends BaseActivity
+        implements MaterialAdapter.OnMaterialClickListener {
 
     RecyclerView recyclerView;
     List<Material> allMaterials;
@@ -42,9 +45,53 @@ public class UserDashboardActivity extends BaseActivity implements MaterialAdapt
         recyclerView.setAdapter(adapter);
 
         loadAcceptedMaterials();
+
+        // 🔥 SEARCH LISTENER (REAL-TIME, NOT CASE SENSITIVE)
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterMaterials(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
-    // 🔥 LOAD ONLY ACCEPTED PRODUCTS
+    // 🔥 FILTER FUNCTION
+    private void filterMaterials(String query) {
+
+        filteredList.clear();
+
+        if (query.isEmpty()) {
+            filteredList.addAll(allMaterials);
+        } else {
+
+            String lowerCaseQuery = query.toLowerCase();
+
+            for (Material material : allMaterials) {
+
+                if ((material.name != null &&
+                        material.name.toLowerCase().contains(lowerCaseQuery)) ||
+
+                        (material.category != null &&
+                                material.category.toLowerCase().contains(lowerCaseQuery)) ||
+
+                        (material.supplier != null &&
+                                material.supplier.toLowerCase().contains(lowerCaseQuery))) {
+
+                    filteredList.add(material);
+                }
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+    // 🔥 LOAD ACCEPTED PRODUCTS
     private void loadAcceptedMaterials() {
 
         db.collection("materials")
@@ -74,7 +121,6 @@ public class UserDashboardActivity extends BaseActivity implements MaterialAdapt
                         material.shortDesc = doc.getString("shortDesc");
                         material.quality = doc.getString("quality");
                         material.details = doc.getString("details");
-
                         material.imageUrl = doc.getString("image");
 
                         allMaterials.add(material);

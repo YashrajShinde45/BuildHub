@@ -51,20 +51,16 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.Materi
         holder.txtSupplier.setText(material.supplier);
         holder.txtQuantity.setText("Qty: " + material.quantity);
 
-        // 🔥 LOAD IMAGE FROM FIRESTORE URL USING GLIDE
         if (material.imageUrl != null && !material.imageUrl.isEmpty()) {
-
             Glide.with(context)
                     .load(material.imageUrl)
-                    .placeholder(R.drawable.landing_image)  // optional placeholder
-                    .error(R.drawable.landing_image)        // fallback image
+                    .placeholder(R.drawable.landing_image)
+                    .error(R.drawable.landing_image)
                     .into(holder.imgMaterial);
-
         } else {
             holder.imgMaterial.setImageResource(R.drawable.landing_image);
         }
 
-        // 🔥 CLICK LISTENER (UNCHANGED)
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onMaterialClick(material);

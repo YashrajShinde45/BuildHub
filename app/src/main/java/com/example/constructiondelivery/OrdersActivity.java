@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class OrdersActivity extends BaseActivity {
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+    private ListenerRegistration registration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +47,10 @@ public class OrdersActivity extends BaseActivity {
         orderAdapter = new OrderAdapter(this, orderList, false);
         recyclerView.setAdapter(orderAdapter);
 
-        loadOrders();
+        loadOrdersRealtime();
     }
 
-    private void loadOrders() {
+    private void loadOrdersRealtime() {
 
         if (mAuth.getCurrentUser() == null) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
@@ -57,25 +59,28 @@ public class OrdersActivity extends BaseActivity {
 
         String userId = mAuth.getCurrentUser().getUid();
 
-        db.collection("users")
+        registration = db.collection("users")
                 .document(userId)
                 .collection("orders")
-                .orderBy("orderDate")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .orderBy("orderDate", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshots, error) -> {
+
+                    if (error != null) return;
 
                     orderList.clear();
 
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    if (snapshots != null) {
+                        snapshots.forEach(doc -> {
 
-                        Order order = new Order();
-                        order.orderId = doc.getString("orderId");
-                        order.userId = doc.getString("userId");
-                        order.totalPrice = doc.getString("totalPrice");
-                        order.orderStatus = doc.getString("orderStatus");
-                        order.shippingAddress = doc.getString("shippingAddress");
+                            Order order = new Order();
+                            order.orderId = doc.getString("orderId");
+                            order.userId = doc.getString("userId");
+                            order.totalPrice = doc.getString("totalPrice");
+                            order.orderStatus = doc.getString("orderStatus");
+                            order.shippingAddress = doc.getString("shippingAddress");
 
-                        orderList.add(order);
+                            orderList.add(order);
+                        });
                     }
 
                     if (orderList.isEmpty()) {
@@ -87,20 +92,14 @@ public class OrdersActivity extends BaseActivity {
                     }
 
                     orderAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Failed to load orders: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show());
+                });
     }
 
     @Override
-    protected void setupUniversalNavigation() {
-        super.setupUniversalNavigation();
-
-        View backButton = findViewById(R.id.btnBack);
-        if (backButton != null) {
-            backButton.setVisibility(View.VISIBLE);
+    protected void onDestroy() {
+        super.onDestroy();
+        if (registration != null) {
+            registration.remove();
         }
     }
 }

@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
     private RadioGroup paymentMethodGroup;
     private TextInputLayout transactionIdLayout;
     private EditText transactionIdEditText;
+    private ImageView paymentQrImage;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -52,18 +54,22 @@ public class PaymentMethodActivity extends AppCompatActivity {
         paymentMethodGroup = findViewById(R.id.payment_method_group);
         transactionIdLayout = findViewById(R.id.transaction_id_layout);
         transactionIdEditText = findViewById(R.id.transaction_id_edit_text);
+        paymentQrImage = findViewById(R.id.qr_code_image);
         Button placeOrderButton = findViewById(R.id.place_order_button);
 
         shippingAddress = getIntent().getStringExtra("address");
         cartItems = (List<CartItem>) getIntent().getSerializableExtra("cartItems");
 
         transactionIdLayout.setVisibility(View.GONE);
+        paymentQrImage.setVisibility(View.GONE);
 
         paymentMethodGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.pay_online_radio_button) {
                 transactionIdLayout.setVisibility(View.VISIBLE);
+                paymentQrImage.setVisibility(View.VISIBLE);
             } else {
                 transactionIdLayout.setVisibility(View.GONE);
+                paymentQrImage.setVisibility(View.GONE);
             }
         });
 
@@ -111,7 +117,6 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         String userId = mAuth.getCurrentUser().getUid();
 
-        // 🔥 Calculate Total
         double total = 0;
         for (CartItem item : cartItems) {
             try {
@@ -124,7 +129,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         String totalPrice = String.format(Locale.getDefault(), "₹%.2f", total);
 
         /* ---------------------------------------------------------
-           1️⃣ SAVE IN BUY_NOW COLLECTION (UNCHANGED)
+           1️⃣ SAVE IN BUY_NOW COLLECTION
         --------------------------------------------------------- */
 
         var buyNowRef = db.collection("users")
@@ -137,7 +142,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         buyNowData.put("paymentStatus", paymentStatus);
         buyNowData.put("transactionId", transactionId);
         buyNowData.put("totalAmount", totalPrice);
-        buyNowData.put("orderStatus", "Placed");
+        buyNowData.put("orderStatus", "Pending"); // 🔥 DEFAULT STATUS
         buyNowData.put("createdAt", FieldValue.serverTimestamp());
 
         buyNowRef.set(buyNowData).addOnSuccessListener(unused -> {
@@ -151,7 +156,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         });
 
         /* ---------------------------------------------------------
-           2️⃣ SAVE IN USER ORDERS COLLECTION (UNCHANGED)
+           2️⃣ SAVE IN USER ORDERS COLLECTION
         --------------------------------------------------------- */
 
         var orderRef = db.collection("users")
@@ -166,7 +171,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         orderData.put("userId", userId);
         orderData.put("totalPrice", totalPrice);
         orderData.put("shippingAddress", shippingAddress);
-        orderData.put("orderStatus", "Placed");
+        orderData.put("orderStatus", "Pending"); // 🔥 DEFAULT STATUS
         orderData.put("paymentMethod", paymentMethod);
         orderData.put("transactionId", transactionId);
         orderData.put("orderDate", FieldValue.serverTimestamp());
@@ -181,7 +186,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
             }
 
             /* ---------------------------------------------------------
-               3️⃣ 🔥 SAVE IN GLOBAL ORDERS COLLECTION (NEW)
+               3️⃣ SAVE IN GLOBAL ORDERS COLLECTION
             --------------------------------------------------------- */
 
             var globalOrderRef = db.collection("orders").document(orderId);

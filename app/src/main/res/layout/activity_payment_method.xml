@@ -60,7 +60,8 @@
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:src="@android:drawable/ic_dialog_info"
+            android:src="@drawable/payment_qr"
+            android:visibility="gone"
             tools:src="@tools:sample/avatars" />
 
         <com.google.android.material.textfield.TextInputLayout
