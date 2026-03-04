@@ -4,13 +4,15 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
+    <!-- ⭐ PRODUCT IMAGE -->
     <ImageView
         android:id="@+id/imgCartItem"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/landing_image"/>
 
     <LinearLayout
         android:id="@+id/cart_item_details"
@@ -36,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Supplier" />
-            
+
         <TextView
             android:id="@+id/txtCartItemPrice"
             android:layout_width="wrap_content"
@@ -91,6 +93,7 @@
             android:layout_gravity="end"
             android:text="Remove"
             android:textColor="@color/red" />
+
     </LinearLayout>
 
 </RelativeLayout>

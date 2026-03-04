@@ -35,8 +35,10 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.Materi
     @NonNull
     @Override
     public MaterialViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_material, parent, false);
+
         return new MaterialViewHolder(view);
     }
 
@@ -47,17 +49,21 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.Materi
 
         holder.txtName.setText(material.name);
         holder.txtCategory.setText(material.category);
-        holder.txtPrice.setText(material.price);
+        holder.txtPrice.setText("₹ " + material.price);
         holder.txtSupplier.setText(material.supplier);
         holder.txtQuantity.setText("Qty: " + material.quantity);
 
+        // 🔥 LOAD CLOUDINARY IMAGE
         if (material.imageUrl != null && !material.imageUrl.isEmpty()) {
+
             Glide.with(context)
                     .load(material.imageUrl)
                     .placeholder(R.drawable.landing_image)
                     .error(R.drawable.landing_image)
                     .into(holder.imgMaterial);
+
         } else {
+
             holder.imgMaterial.setImageResource(R.drawable.landing_image);
         }
 

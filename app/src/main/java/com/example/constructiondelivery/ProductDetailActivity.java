@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +37,7 @@ public class ProductDetailActivity extends BaseActivity {
             back.setVisibility(View.VISIBLE);
         }
 
+        // GET MATERIAL OBJECT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             material = getIntent().getSerializableExtra("material", Material.class);
         } else {
@@ -67,7 +70,6 @@ public class ProductDetailActivity extends BaseActivity {
             startActivity(intent);
         });
 
-
         ImageView img = findViewById(R.id.imgProduct);
         TextView name = findViewById(R.id.txtName);
         TextView supplier = findViewById(R.id.txtSupplier);
@@ -82,11 +84,10 @@ public class ProductDetailActivity extends BaseActivity {
         Button btnIncrease = findViewById(R.id.btnIncrease);
         Button btnDecrease = findViewById(R.id.btnDecrease);
 
-        // Use the new quantityUnit field
         if (material.quantityUnit != null && !material.quantityUnit.isEmpty()) {
             txtUnitDisplay.setText(" " + material.quantityUnit);
         } else {
-            txtUnitDisplay.setText(" Units"); // Fallback
+            txtUnitDisplay.setText(" Units");
         }
 
         btnIncrease.setOnClickListener(v -> {
@@ -101,7 +102,14 @@ public class ProductDetailActivity extends BaseActivity {
             }
         });
 
-        img.setImageResource(material.image);
+        // ⭐ LOAD IMAGE FROM CLOUDINARY
+        Glide.with(this)
+                .load(material.imageUrl)
+                .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .into(img);
+
+        // SET PRODUCT DATA
         name.setText(material.name);
         supplier.setText("Supplier: " + material.supplier);
         price.setText(material.price);

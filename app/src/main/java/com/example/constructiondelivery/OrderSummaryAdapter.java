@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapter.ViewHolder> {
@@ -25,12 +27,17 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_order_summary, parent, false);
+
+        View view = LayoutInflater
+                .from(context)
+                .inflate(R.layout.item_order_summary, parent, false);
+
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         CartItem cartItem = cartItems.get(position);
         Material material = cartItem.getMaterial();
 
@@ -38,9 +45,13 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
         holder.quantity.setText("Quantity: " + cartItem.getQuantity());
         holder.pricePerUnit.setText("Price: " + material.price);
 
-        if (material.image != 0) {
-            holder.productImage.setImageResource(material.image);
-        }
+        // ⭐ LOAD IMAGE FROM CLOUDINARY
+        Glide.with(context)
+                .load(material.imageUrl)
+                .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .centerCrop()
+                .into(holder.productImage);
     }
 
     @Override
@@ -49,11 +60,13 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+
         ImageView productImage;
         TextView productName, quantity, pricePerUnit;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             productImage = itemView.findViewById(R.id.product_image);
             productName = itemView.findViewById(R.id.product_name);
             quantity = itemView.findViewById(R.id.quantity);

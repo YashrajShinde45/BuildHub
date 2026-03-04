@@ -3,10 +3,11 @@ package com.example.constructiondelivery;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 public class BuyNowActivity extends BaseActivity {
 
@@ -23,7 +24,7 @@ public class BuyNowActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
 
-        // 🔥 SAFELY GET MATERIAL
+        // ✅ Get material safely
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             material = getIntent().getSerializableExtra("material", Material.class);
         } else {
@@ -38,9 +39,21 @@ public class BuyNowActivity extends BaseActivity {
             return;
         }
 
-        // 🔥 POPULATE UI
-        ((ImageView) findViewById(R.id.imgBuyNowProduct))
-                .setImageResource(material.image);
+        ImageView imgProduct = findViewById(R.id.imgBuyNowProduct);
+
+        // ⭐ Load Cloudinary image safely
+        if (material.imageUrl != null && !material.imageUrl.isEmpty()) {
+
+            Glide.with(this)
+                    .load(material.imageUrl)
+                    .placeholder(R.drawable.landing_image)
+                    .error(R.drawable.landing_image)
+                    .into(imgProduct);
+
+        } else {
+
+            imgProduct.setImageResource(R.drawable.landing_image);
+        }
 
         ((TextView) findViewById(R.id.txtBuyNowName))
                 .setText(material.name);
@@ -50,15 +63,12 @@ public class BuyNowActivity extends BaseActivity {
 
         calculateTotal();
 
-        // 🔥 CONFIRM ORDER BUTTON → OPEN PAYMENT
         findViewById(R.id.btnConfirmOrder).setOnClickListener(v -> {
 
             Intent intent = new Intent(BuyNowActivity.this,
                     PaymentMethodActivity.class);
 
-            // ✅ PASS PRODUCT NAME (NOT ID)
             intent.putExtra("materialName", material.name);
-
             intent.putExtra("quantity", quantity);
             intent.putExtra("totalAmount", totalAmount);
 
@@ -66,10 +76,10 @@ public class BuyNowActivity extends BaseActivity {
         });
     }
 
-    // 🔥 CALCULATE TOTAL PROPERLY
     private void calculateTotal() {
 
         try {
+
             String cleanPrice = material.price
                     .replaceAll("[₹,]", "")
                     .split("/")[0]
@@ -80,6 +90,7 @@ public class BuyNowActivity extends BaseActivity {
             totalAmount = parsedPrice * quantity;
 
         } catch (Exception e) {
+
             totalAmount = 0;
         }
 

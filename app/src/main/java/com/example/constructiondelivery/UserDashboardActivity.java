@@ -28,7 +28,9 @@ public class UserDashboardActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getSupportActionBar() != null) getSupportActionBar().hide();
+
         setContentView(R.layout.activity_user_dashboard);
 
         db = FirebaseFirestore.getInstance();
@@ -46,8 +48,9 @@ public class UserDashboardActivity extends BaseActivity
 
         loadAcceptedMaterials();
 
-        // 🔥 SEARCH LISTENER (REAL-TIME, NOT CASE SENSITIVE)
+        // 🔍 SEARCH LISTENER
         etSearch.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -61,7 +64,7 @@ public class UserDashboardActivity extends BaseActivity
         });
     }
 
-    // 🔥 FILTER FUNCTION
+    // 🔍 FILTER PRODUCTS
     private void filterMaterials(String query) {
 
         filteredList.clear();
@@ -91,7 +94,7 @@ public class UserDashboardActivity extends BaseActivity
         adapter.notifyDataSetChanged();
     }
 
-    // 🔥 LOAD ACCEPTED PRODUCTS
+    // 🔥 LOAD ACCEPTED MATERIALS FROM FIRESTORE
     private void loadAcceptedMaterials() {
 
         db.collection("materials")
@@ -121,7 +124,15 @@ public class UserDashboardActivity extends BaseActivity
                         material.shortDesc = doc.getString("shortDesc");
                         material.quality = doc.getString("quality");
                         material.details = doc.getString("details");
-                        material.imageUrl = doc.getString("image");
+
+                        // ⭐ FIXED: Load imageUrl from Cloudinary field
+                        String imageUrl = doc.getString("imageUrl");
+
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            material.imageUrl = imageUrl;
+                        } else {
+                            material.imageUrl = "";
+                        }
 
                         allMaterials.add(material);
                     }
@@ -133,6 +144,7 @@ public class UserDashboardActivity extends BaseActivity
 
     @Override
     public void onMaterialClick(Material material) {
+
         Intent intent = new Intent(this, ProductDetailActivity.class);
         intent.putExtra("material", material);
         startActivity(intent);

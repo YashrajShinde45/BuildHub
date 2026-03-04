@@ -33,7 +33,8 @@ android {
 }
 
 dependencies {
-
+    //cloudinary
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
     // Android Core
     implementation(libs.appcompat)
     implementation(libs.material)

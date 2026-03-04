@@ -22,26 +22,67 @@ public class CartManager {
         return mAuth.getCurrentUser().getUid();
     }
 
+    // 🔥 LOAD CART FROM FIRESTORE
     public static void loadCartFromFirestore(CartLoadListener listener) {
+
         String userId = getUserId();
         if (userId == null) {
             listener.onCartLoaded();
             return;
         }
 
-        db.collection("users").document(userId).collection("cart").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            cartItems.clear();
-            for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
-                String materialId = queryDocumentSnapshots.getDocuments().get(i).getString("materialId");
-                long quantity = queryDocumentSnapshots.getDocuments().get(i).getLong("quantity");
+        db.collection("users")
+                .document(userId)
+                .collection("cart")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
 
-                Material material = DataHelper.getMaterialById(materialId);
-                if (material != null) {
-                    cartItems.add(new CartItem(material, (int) quantity));
-                }
-            }
-            listener.onCartLoaded();
-        });
+                    cartItems.clear();
+
+                    for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
+
+                        String materialId =
+                                queryDocumentSnapshots.getDocuments().get(i).getString("materialId");
+
+                        long quantity =
+                                queryDocumentSnapshots.getDocuments().get(i).getLong("quantity");
+
+                        // 🔥 FETCH MATERIAL FROM FIRESTORE
+                        db.collection("materials")
+                                .document(materialId)
+                                .get()
+                                .addOnSuccessListener(doc -> {
+
+                                    if (doc.exists()) {
+
+                                        Material material = new Material();
+
+                                        material.id = doc.getId();
+                                        material.name = doc.getString("name");
+                                        material.category = doc.getString("category");
+
+                                        Double price = doc.getDouble("price");
+                                        material.price = price != null ? "₹" + price : "₹0";
+
+                                        Long qty = doc.getLong("quantity");
+                                        material.quantity = qty != null ? String.valueOf(qty) : "0";
+
+                                        material.quantityUnit = doc.getString("quantityUnit");
+                                        material.supplier = doc.getString("supplier");
+                                        material.shortDesc = doc.getString("shortDesc");
+                                        material.quality = doc.getString("quality");
+                                        material.details = doc.getString("details");
+
+                                        // ⭐ FIXED: LOAD IMAGE URL FROM CLOUDINARY FIELD
+                                        material.imageUrl = doc.getString("imageUrl");
+
+                                        cartItems.add(new CartItem(material, (int) quantity));
+
+                                        listener.onCartLoaded();
+                                    }
+                                });
+                    }
+                });
     }
 
     // ✅ ADD ITEM
@@ -52,7 +93,6 @@ public class CartManager {
 
         String materialId = item.getMaterial().id;
 
-        // Check if already exists locally
         for (CartItem cartItem : cartItems) {
             if (cartItem.getMaterial().id.equals(materialId)) {
                 cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
@@ -66,7 +106,7 @@ public class CartManager {
         db.collection("users")
                 .document(userId)
                 .collection("cart")
-                .document(materialId) // 🔥 materialId as docId
+                .document(materialId)
                 .set(createCartMap(item));
     }
 
@@ -105,7 +145,7 @@ public class CartManager {
         }
     }
 
-    // ✅ UPDATE QUANTITY IN FIRESTORE
+    // 🔥 UPDATE QUANTITY
     private static void updateQuantityInFirestore(CartItem item) {
 
         String userId = getUserId();
@@ -118,7 +158,7 @@ public class CartManager {
                 .update("quantity", item.getQuantity());
     }
 
-    // ✅ CREATE MAP
+    // 🔥 CREATE MAP
     private static java.util.Map<String, Object> createCartMap(CartItem item) {
 
         java.util.Map<String, Object> map = new java.util.HashMap<>();
@@ -143,6 +183,7 @@ public class CartManager {
                 .collection("cart")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+
                     queryDocumentSnapshots.getDocuments()
                             .forEach(doc -> doc.getReference().delete());
                 });

@@ -14,12 +14,13 @@ public class Material implements Serializable {
     public String shortDesc;
     public String quality;
     public String details;
-    public int image;
     public String status;
 
-    // 🔥 NEW FIELDS
+    // Firebase fields
     public String supplierId;
     public String productId;
+
+    // ⭐ Cloudinary Image URL
     public String imageUrl;
 
     public Material() {

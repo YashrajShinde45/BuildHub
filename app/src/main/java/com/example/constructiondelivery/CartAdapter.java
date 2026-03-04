@@ -12,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
@@ -41,6 +43,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
+
         CartItem cartItem = cartItems.get(position);
         Material material = cartItem.getMaterial();
 
@@ -48,9 +51,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.itemSupplier.setText("By: " + material.supplier);
         holder.itemPrice.setText(material.price);
         holder.itemQuantity.setText(String.valueOf(cartItem.getQuantity()));
-        holder.itemImage.setImageResource(material.image);
 
-        // --- CLICK LISTENERS ---
+        Glide.with(context)
+                .load(material.imageUrl)
+                .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .into(holder.itemImage);
+
         holder.btnRemove.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemRemoved(cartItem);
@@ -84,17 +91,20 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {
+
         ImageView itemImage;
         TextView itemName, itemSupplier, itemPrice, itemQuantity;
         Button btnRemove, btnIncrease, btnDecrease;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
+
             itemImage = itemView.findViewById(R.id.imgCartItem);
             itemName = itemView.findViewById(R.id.txtCartItemName);
             itemSupplier = itemView.findViewById(R.id.txtCartItemSupplier);
             itemPrice = itemView.findViewById(R.id.txtCartItemPrice);
             itemQuantity = itemView.findViewById(R.id.txtCartItemQuantity);
+
             btnRemove = itemView.findViewById(R.id.btnRemoveFromCart);
             btnIncrease = itemView.findViewById(R.id.btnIncreaseQuantity);
             btnDecrease = itemView.findViewById(R.id.btnDecreaseQuantity);

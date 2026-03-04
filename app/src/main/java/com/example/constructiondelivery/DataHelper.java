@@ -7,6 +7,7 @@ import java.util.UUID;
 public class DataHelper {
 
     private static List<Material> allMaterials;
+
     private static String userAddress =
             "A-123, Rosewood Apartments, MG Road, Pune, Maharashtra - 411001";
 
@@ -23,7 +24,9 @@ public class DataHelper {
         if (allMaterials == null) {
 
             allMaterials = new ArrayList<>();
-            int img = R.drawable.landing_image;
+
+            // ⭐ Default image placeholder
+            String img = String.valueOf(R.drawable.landing_image);
 
             addMaterial("River Sand", "Natural Materials", "₹1,200/ton",
                     "1 Ton", "", "Local Quarry",
@@ -59,9 +62,9 @@ public class DataHelper {
                                     String shortDesc,
                                     String quality,
                                     String details,
-                                    int image) {
+                                    String imageUrl) {
 
-        Material material = new Material();  // ✅ use empty constructor
+        Material material = new Material();
 
         material.id = UUID.randomUUID().toString();
         material.name = name;
@@ -73,7 +76,10 @@ public class DataHelper {
         material.shortDesc = shortDesc;
         material.quality = quality;
         material.details = details;
-        material.image = image;
+
+        // ⭐ Image field used everywhere in app
+        material.imageUrl = imageUrl;
+
         material.status = "Pending";
 
         allMaterials.add(material);
@@ -82,10 +88,17 @@ public class DataHelper {
     public static Material getMaterialById(String id) {
 
         for (Material material : getAllMaterials()) {
-            if (material.id.equals(id)) {
+
+            if (material.id != null && material.id.equals(id)) {
+                return material;
+            }
+
+            // ⭐ also check productId (Firestore products)
+            if (material.productId != null && material.productId.equals(id)) {
                 return material;
             }
         }
+
         return null;
     }
 }

@@ -29,7 +29,10 @@ public class ManageMaterialActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         db = FirebaseFirestore.getInstance();
 
@@ -76,6 +79,9 @@ public class ManageMaterialActivity extends AppCompatActivity {
                         material.details = doc.getString("details");
                         material.status = doc.getString("status");
 
+                        // ⭐ Cloudinary image URL
+                        material.imageUrl = doc.getString("imageUrl");
+
                         materialList.add(material);
                     }
 
@@ -89,10 +95,13 @@ public class ManageMaterialActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.getItemId() == android.R.id.home) {
+
             finish();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

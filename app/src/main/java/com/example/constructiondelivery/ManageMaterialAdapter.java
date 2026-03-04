@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -30,8 +32,10 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.item_manage_material, parent, false);
+
         return new ViewHolder(view);
     }
 
@@ -44,6 +48,20 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
         holder.materialCategory.setText("Category: " + material.category);
         holder.materialPrice.setText("Price: " + material.price);
 
+        // ⭐ Load Cloudinary image safely
+        if (material.imageUrl != null && !material.imageUrl.isEmpty()) {
+
+            Glide.with(context)
+                    .load(material.imageUrl)
+                    .placeholder(R.drawable.landing_image)
+                    .error(R.drawable.landing_image)
+                    .into(holder.materialImage);
+
+        } else {
+
+            holder.materialImage.setImageResource(R.drawable.landing_image);
+        }
+
         holder.acceptButton.setOnClickListener(v ->
                 updateStatus(material, "Accepted", holder.getAdapterPosition()));
 
@@ -51,7 +69,6 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
                 updateStatus(material, "Rejected", holder.getAdapterPosition()));
     }
 
-    // 🔥 FINAL CORRECT UPDATE METHOD
     private void updateStatus(Material material, String newStatus, int position) {
 
         db.collection("materials")
@@ -74,20 +91,25 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
     }
 
     private void removeFromUI(int position) {
+
         if (position != RecyclerView.NO_POSITION) {
+
             materialList.remove(position);
+
             notifyItemRemoved(position);
         }
     }
 
     @Override
     public int getItemCount() {
+
         return materialList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView materialName, materialCategory, materialPrice;
+        ImageView materialImage;
         Button acceptButton, rejectButton;
 
         public ViewHolder(@NonNull View itemView) {
@@ -96,6 +118,7 @@ public class ManageMaterialAdapter extends RecyclerView.Adapter<ManageMaterialAd
             materialName = itemView.findViewById(R.id.material_name);
             materialCategory = itemView.findViewById(R.id.material_category);
             materialPrice = itemView.findViewById(R.id.material_price);
+            materialImage = itemView.findViewById(R.id.material_image);
             acceptButton = itemView.findViewById(R.id.btn_accept);
             rejectButton = itemView.findViewById(R.id.btn_reject);
         }

@@ -41,7 +41,9 @@ public class CompareActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getSupportActionBar() != null) getSupportActionBar().hide();
+
         setContentView(R.layout.activity_compare);
 
         selectionContainer = findViewById(R.id.selectionContainer);
@@ -60,16 +62,19 @@ public class CompareActivity extends BaseActivity {
         });
 
         card2.setOnClickListener(v -> {
+
             if (product1 == null) {
                 Toast.makeText(this, "Select the first product.", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             Intent intent = new Intent(this, ProductSelectionActivity.class);
             intent.putExtra("excludeProduct", product1.name);
             startActivityForResult(intent, SELECT_PRODUCT_2_REQUEST);
         });
 
         btnCompare.setOnClickListener(v -> {
+
             if (product1 == null || product2 == null) {
                 Toast.makeText(this, "Please select two products to compare.", Toast.LENGTH_SHORT).show();
                 return;
@@ -82,9 +87,13 @@ public class CompareActivity extends BaseActivity {
             possibleDelivery2 = createRandomTimer(product2.name);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
                 loadingIndicator.setVisibility(View.GONE);
+
                 populateComparisonResults();
+
                 resultsContainer.setVisibility(View.VISIBLE);
+
             }, 2500);
         });
     }
@@ -92,7 +101,9 @@ public class CompareActivity extends BaseActivity {
     private void updateProductCard(MaterialCardView card, Material material) {
 
         card.removeAllViews();
+
         LayoutInflater inflater = LayoutInflater.from(this);
+
         View productView = inflater.inflate(R.layout.item_compare_product, card, false);
 
         ImageView img = productView.findViewById(R.id.imgCompareProduct);
@@ -102,6 +113,8 @@ public class CompareActivity extends BaseActivity {
         Glide.with(this)
                 .load(material.imageUrl)
                 .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .centerCrop()
                 .into(img);
 
         name.setText(material.name);
@@ -112,8 +125,19 @@ public class CompareActivity extends BaseActivity {
 
     private void populateComparisonResults() {
 
-        Glide.with(this).load(product1.imageUrl).into((ImageView) findViewById(R.id.imgProduct1));
-        Glide.with(this).load(product2.imageUrl).into((ImageView) findViewById(R.id.imgProduct2));
+        Glide.with(this)
+                .load(product1.imageUrl)
+                .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .centerCrop()
+                .into((ImageView) findViewById(R.id.imgProduct1));
+
+        Glide.with(this)
+                .load(product2.imageUrl)
+                .placeholder(R.drawable.landing_image)
+                .error(R.drawable.landing_image)
+                .centerCrop()
+                .into((ImageView) findViewById(R.id.imgProduct2));
 
         ((TextView) findViewById(R.id.txtName1)).setText(product1.name);
         ((TextView) findViewById(R.id.txtPrice1)).setText(product1.price);
@@ -137,18 +161,25 @@ public class CompareActivity extends BaseActivity {
                 .setText("Possible delivery in: " + timeStr2);
 
         TextView tvClosest = findViewById(R.id.tvClosestPossibleDelivery);
+
         tvClosest.setVisibility(View.VISIBLE);
 
         if (possibleDelivery1 < possibleDelivery2) {
+
             tvClosest.setText("Closest Possible Delivery: " + product1.name + " (" + timeStr1 + ")");
+
         } else {
+
             tvClosest.setText("Closest Possible Delivery: " + product2.name + " (" + timeStr2 + ")");
         }
     }
 
     public long createRandomTimer(String productName) {
+
         long currentTime = System.currentTimeMillis();
+
         Random random = new Random();
+
         int randomDays = random.nextInt(4) + 4;
         int randomHours = random.nextInt(24);
 
@@ -157,6 +188,7 @@ public class CompareActivity extends BaseActivity {
                         + (randomHours * 60L * 60 * 1000);
 
         Map<String, Object> data = new HashMap<>();
+
         data.put("productName", productName);
         data.put("createdAt", currentTime);
         data.put("possibleDeliveryTime", possibleDeliveryTime);
@@ -170,14 +202,19 @@ public class CompareActivity extends BaseActivity {
     }
 
     private String getRemainingTimeStr(long possibleDeliveryTime) {
+
         long diff = possibleDeliveryTime - System.currentTimeMillis();
+
         long days = TimeUnit.MILLISECONDS.toDays(diff);
+
         long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+
         return days + "d " + hours + "h";
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK || data == null) return;
@@ -188,10 +225,15 @@ public class CompareActivity extends BaseActivity {
         if (selectedMaterial == null) return;
 
         if (requestCode == SELECT_PRODUCT_1_REQUEST) {
+
             product1 = selectedMaterial;
+
             updateProductCard(card1, product1);
+
         } else if (requestCode == SELECT_PRODUCT_2_REQUEST) {
+
             product2 = selectedMaterial;
+
             updateProductCard(card2, product2);
         }
     }

@@ -79,7 +79,9 @@ public class ProductSelectionActivity extends AppCompatActivity
                         material.shortDesc = doc.getString("shortDesc");
                         material.quality = doc.getString("quality");
                         material.details = doc.getString("details");
-                        material.imageUrl = doc.getString("image");
+
+                        // ⭐ FIX: Load Cloudinary Image URL
+                        material.imageUrl = doc.getString("imageUrl");
 
                         if (productToExclude != null &&
                                 productToExclude.equals(material.name)) {

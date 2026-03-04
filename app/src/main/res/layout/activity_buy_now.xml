@@ -21,10 +21,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Order Summary"                
+                android:text="Order Summary"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
-            
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -32,16 +32,18 @@
                 android:background="@color/white"
                 android:padding="16dp">
 
+                <!-- ⭐ PRODUCT IMAGE FROM CLOUDINARY -->
                 <ImageView
                     android:id="@+id/imgBuyNowProduct"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/landing_image"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/imgBuyNowProduct"
+                    android:layout_toEndOf="@id/imgBuyNowProduct"
                     android:layout_marginStart="16dp"
                     android:orientation="vertical">
 
@@ -52,7 +54,7 @@
                         android:text="Product Name"
                         android:textSize="18sp"
                         android:textStyle="bold"/>
-                    
+
                     <TextView
                         android:id="@+id/txtBuyNowQuantity"
                         android:layout_width="wrap_content"
@@ -85,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="A-123, Rosewood Apartments, MG Road, Pune, Maharashtra - 411001" />
-                
+
                 <TextView
                     android:id="@+id/txtEstimatedDelivery"
                     android:layout_width="wrap_content"
@@ -96,7 +98,7 @@
             </LinearLayout>
 
             <!-- Price Details Section -->
-             <TextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -116,19 +118,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView android:text="Total MRP"/>
-                    <TextView android:id="@+id/txtTotalMrp" android:layout_alignParentEnd="true"/>
+                    <TextView
+                        android:id="@+id/txtTotalMrp"
+                        android:layout_alignParentEnd="true"/>
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView android:text="Discount"/>
-                    <TextView android:id="@+id/txtDiscount" android:layout_alignParentEnd="true" android:textColor="@color/green"/>
+                    <TextView
+                        android:id="@+id/txtDiscount"
+                        android:layout_alignParentEnd="true"
+                        android:textColor="@color/green"/>
                 </RelativeLayout>
-                 <RelativeLayout
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <TextView android:text="Total Amount" android:textStyle="bold"/>
-                    <TextView android:id="@+id/txtTotalAmount" android:layout_alignParentEnd="true" android:textStyle="bold"/>
+                    <TextView
+                        android:text="Total Amount"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/txtTotalAmount"
+                        android:layout_alignParentEnd="true"
+                        android:textStyle="bold"/>
                 </RelativeLayout>
 
             </LinearLayout>
@@ -136,7 +150,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Buy Now Button (Always at bottom) -->
+    <!-- Confirm Order Button -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

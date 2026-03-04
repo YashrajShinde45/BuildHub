@@ -12,6 +12,15 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- ⭐ PRODUCT IMAGE -->
+        <ImageView
+            android:id="@+id/material_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/landing_image"/>
+
         <TextView
             android:id="@+id/material_name"
             android:layout_width="wrap_content"
