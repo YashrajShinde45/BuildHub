@@ -3,9 +3,11 @@ package com.example.constructiondelivery;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CartManager {
 
@@ -27,7 +29,7 @@ public class CartManager {
 
         String userId = getUserId();
         if (userId == null) {
-            listener.onCartLoaded();
+            if (listener != null) listener.onCartLoaded();
             return;
         }
 
@@ -39,13 +41,24 @@ public class CartManager {
 
                     cartItems.clear();
 
-                    for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        if (listener != null) listener.onCartLoaded();
+                        return;
+                    }
 
-                        String materialId =
-                                queryDocumentSnapshots.getDocuments().get(i).getString("materialId");
+                    AtomicInteger remaining = new AtomicInteger(queryDocumentSnapshots.size());
 
-                        long quantity =
-                                queryDocumentSnapshots.getDocuments().get(i).getLong("quantity");
+                    for (QueryDocumentSnapshot cartDoc : queryDocumentSnapshots) {
+
+                        String materialId = cartDoc.getString("materialId");
+                        Long quantity = cartDoc.getLong("quantity");
+
+                        if (materialId == null) {
+                            if (remaining.decrementAndGet() == 0 && listener != null) {
+                                listener.onCartLoaded();
+                            }
+                            continue;
+                        }
 
                         // 🔥 FETCH MATERIAL FROM FIRESTORE
                         db.collection("materials")
@@ -56,7 +69,6 @@ public class CartManager {
                                     if (doc.exists()) {
 
                                         Material material = new Material();
-
                                         material.id = doc.getId();
                                         material.name = doc.getString("name");
                                         material.category = doc.getString("category");
@@ -72,16 +84,24 @@ public class CartManager {
                                         material.shortDesc = doc.getString("shortDesc");
                                         material.quality = doc.getString("quality");
                                         material.details = doc.getString("details");
-
-                                        // ⭐ FIXED: LOAD IMAGE URL FROM CLOUDINARY FIELD
                                         material.imageUrl = doc.getString("imageUrl");
 
-                                        cartItems.add(new CartItem(material, (int) quantity));
+                                        cartItems.add(new CartItem(material, quantity != null ? quantity.intValue() : 1));
+                                    }
 
+                                    if (remaining.decrementAndGet() == 0 && listener != null) {
+                                        listener.onCartLoaded();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    if (remaining.decrementAndGet() == 0 && listener != null) {
                                         listener.onCartLoaded();
                                     }
                                 });
                     }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onCartLoaded();
                 });
     }
 
